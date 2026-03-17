@@ -12,7 +12,8 @@ document.getElementById('hidden-instituto').value = currInstituto;
 
 if (tenant === 'empresa') {
   document.getElementById('splash-logo').src = 'https://cdn.bitrix24.es/b15495391/landing/7a8/7a88860fb02485c824de9be805faee6d/ie_1x.png';
-  document.getElementById('header-logo').src = 'https://lh3.googleusercontent.com/a-/ALV-UjXPKtsLTepQWQmFSGHqytswW4w4BJnWkNPwXUzWp719hw98gvg=s80-c-mo';
+  document.getElementById('header-logo').src = 'https://cdn.bitrix24.es/b15495391/landing/7a8/7a88860fb02485c824de9be805faee6d/ie_1x.png'; //https://i.postimg.cc/cCRd72MJ/unnamed-(1)-(1).jpg
+  document.getElementById('sidebar-logo').src = 'https://cdn.bitrix24.es/b15495391/landing/7a8/7a88860fb02485c824de9be805faee6d/ie_1x.png';  //'https://lh3.googleusercontent.com/a-/ALV-UjXPKtsLTepQWQmFSGHqytswW4w4BJnWkNPwXUzWp719hw98gvg=s80-c-mo';  
   document.getElementById('splash-title').innerText = 'Bienestar Corporativo';
   document.getElementById('info-horario-texto').innerText = 'Lunes a Viernes: 12:00 PM - 1:00 PM y 8:00 PM - 9:00 PM.';
 } else {

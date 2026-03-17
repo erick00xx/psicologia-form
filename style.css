@@ -38,15 +38,25 @@ body[data-tenant="empresa"] {
 body {
   background-color: var(--bg);
   color: var(--text-main);
-  display: flex;
-  justify-content: center;
   min-height: 100vh;
+}
+
+/* Page Layout Wrappers */
+.page-layout {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.sidebar-info {
+  display: none; /* Hide on mobile */
 }
 
 .app-container {
   width: 100%;
   max-width: var(--app-max-width);
-  background-color: var(--bg);
+  background-color: var(--bg-card);
   min-height: 100vh;
   box-shadow: var(--shadow-lg);
   display: flex;
@@ -66,11 +76,16 @@ body {
   color: white;
 }
 #splash img {
-  width: 150px;
+  width: 180px; /* Aumentado por defecto */
   filter: brightness(0) invert(1);
   margin-bottom: 20px;
   animation: pulse 2s infinite;
 }
+
+body[data-tenant="empresa"] #splash img {
+  width: 220px; /* Mucho más grande para IE en Splash */
+}
+
 #splash h2 {
   font-size: 14px;
   letter-spacing: 2px;
@@ -100,9 +115,16 @@ body {
   z-index: 10;
 }
 .top-header img {
-  width: 120px;
+  width: 140px; /* Aumentado por defecto */
   margin-bottom: 12px;
+  transition: transform 0.2s ease;
 }
+
+body[data-tenant="empresa"] .top-header img {
+  width: 180px; /* Mucho más grande para IE en móvil */
+  transform: scale(1.1);
+}
+
 .top-header h1 {
   font-size: 20px;
   font-weight: 800;
@@ -420,4 +442,149 @@ textarea { resize: vertical; min-height: 80px; }
   font-size: 32px;
   font-weight: bold;
   margin: 0 auto 16px;
+}
+
+/* =========================================
+   DESKTOP OPTIMIZATIONS (Sidebar Layout)
+   ========================================= */
+@media (min-width: 900px) {
+  body {
+    background-color: #f1f5f9; /* Soft background to highlight the central app */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .page-layout {
+    flex-direction: row;
+    align-items: stretch;
+    justify-content: center;
+    gap: 32px;
+    padding: 40px;
+    max-width: 1100px;
+    width: 100%;
+    margin: auto;
+  }
+
+  .sidebar-info {
+    display: flex;
+    flex-direction: column;
+    width: 380px;
+    background: linear-gradient(145deg, var(--primary), var(--primary-dark));
+    color: white;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Decorative circle in the background of the sidebar */
+  .sidebar-info::after {
+    content: '';
+    position: absolute;
+    bottom: -60px;
+    right: -60px;
+    width: 250px;
+    height: 250px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 50%;
+  }
+
+  .sidebar-content {
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    position: relative;
+    z-index: 1;
+  }
+
+  .sidebar-content img {
+    max-width: 240px; /* Aumentado para mayor presencia */
+    height: auto;
+    margin-bottom: 40px;
+    filter: brightness(0) invert(1);
+    align-self: flex-start;
+  }
+
+  /* Excepción para logos que necesitan ser más grandes (ej. Instituto Empresa) */
+  body[data-tenant="empresa"] .sidebar-content img {
+    max-width: 280px; 
+    transform: scale(1.1); /* Ligero aumento visual sin romper el padding */
+    transform-origin: left center;
+  }
+
+  .sidebar-text-block h2 {
+    font-size: 26px;
+    font-weight: 800;
+    margin-bottom: 12px;
+    line-height: 1.2;
+  }
+  
+  .sidebar-text-block p {
+    font-size: 15px;
+    line-height: 1.6;
+    opacity: 0.9;
+    margin-bottom: 40px;
+  }
+
+  .feature-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .feature-list li {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-size: 14.5px;
+    font-weight: 600;
+  }
+
+  .feature-list .feature-icon {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-weight: 800;
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+
+  .sidebar-footer {
+    margin-top: auto;
+    font-size: 12px;
+    font-weight: 500;
+    opacity: 0.6;
+    padding-top: 40px;
+  }
+
+  .app-container {
+    flex: 1;
+    min-height: auto;
+    border-radius: var(--radius-lg);
+    background: var(--bg-card);
+  }
+
+  .top-header img {
+    display: none; /* Hide logo in the main app header since it's already in the sidebar on desktop */
+  }
+
+  .top-header {
+    text-align: left;
+    padding: 32px 32px 16px;
+    border-bottom: none;
+  }
+  
+  .top-header h1 { font-size: 24px; }
+  
+  .main-content {
+    padding: 0 32px 32px;
+  }
 }
