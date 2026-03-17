@@ -38,6 +38,14 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btn-entendido-info').addEventListener('click', () => {
     document.getElementById('info-modal-overlay').style.display = 'none';
   });
+
+  // Forzar mayúsculas en el input de ciclo en tiempo real
+  const inputCiclo = document.getElementById('ciclo');
+  if(inputCiclo) {
+    inputCiclo.addEventListener('input', function() {
+      this.value = this.value.toUpperCase();
+    });
+  }
 });
 
 function fetchDisponibilidad() {
