@@ -18,6 +18,40 @@
 
   <div id="toast">Notificación</div>
 
+  <!-- MODAL DE INFORMACIÓN INICIAL -->
+  <div class="modal-overlay" id="info-modal-overlay" style="display: none; align-items: center; justify-content: center;">
+    <div class="modal-content info-modal-content">
+      <div class="modal-header">
+        <h2 style="font-size: 22px; color: var(--primary);">Información Importante</h2>
+      </div>
+      
+      <div class="modal-body">
+        <p style="color: var(--text-muted); font-size: 15px; margin-bottom: 24px; text-align: center;">Antes de agendar, por favor ten en cuenta lo siguiente:</p>
+        
+        <div class="info-card">
+          <div class="info-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+          </div>
+          <div class="info-text">
+            <p>El <b>horario de atención</b> es:</p>
+            <p id="info-horario-texto" style="margin-top: 4px; color: var(--text-muted);">Lunes a Viernes: 8:00 AM - 1:00 PM y 2:00 PM - 6:00 PM.</p>
+          </div>
+        </div>
+
+        <div class="info-card">
+          <div class="info-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+          </div>
+          <div class="info-text">
+            <p>Recibirás un <b>correo de confirmación</b>. Es indispensable que lo muestres a la psicóloga al momento de tu consulta.</p>
+          </div>
+        </div>
+
+        <button type="button" class="btn-primary" id="btn-entendido-info" style="margin-top: 24px;">Entendido, ver agenda</button>
+      </div>
+    </div>
+  </div>
+
   <!-- MAIN APP -->
   <div class="app-container">
     <header class="top-header">

@@ -1,18 +1,22 @@
 // --- CONFIGURACIÓN ---
-const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxvZRjALKcc9HzS_Ir-QeMqzbGNzfy3hL8-wqNxsiMT5c5jQ0_Kv1FyeNjFSZHFlRL6/exec';
+const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzCGjgGNYODD9-ItmZfnSBf6_PwQUwBkVFEvFtTFPb0ocVoJxFvFG4RFxaW4OpFGDvT/exec';
 
 // Multi-tenant configuration
 const urlParams = new URLSearchParams(window.location.search);
 const tenant = urlParams.get('tenant') || 'neumann'; // "neumann" o "empresa"
+// const tenant = 'empresa'; // "neumann" o "empresa"
 
 document.body.setAttribute('data-tenant', tenant);
 const currInstituto = tenant === 'empresa' ? 'Instituto de la Empresa' : 'Jhonn Vonn Neumann';
 document.getElementById('hidden-instituto').value = currInstituto;
 
 if (tenant === 'empresa') {
-  document.getElementById('splash-logo').src = 'https://lh3.googleusercontent.com/a-/ALV-UjXPKtsLTepQWQmFSGHqytswW4w4BJnWkNPwXUzWp719hw98gvg=s80-c-mo';
+  document.getElementById('splash-logo').src = 'https://cdn.bitrix24.es/b15495391/landing/7a8/7a88860fb02485c824de9be805faee6d/ie_1x.png';
   document.getElementById('header-logo').src = 'https://lh3.googleusercontent.com/a-/ALV-UjXPKtsLTepQWQmFSGHqytswW4w4BJnWkNPwXUzWp719hw98gvg=s80-c-mo';
   document.getElementById('splash-title').innerText = 'Bienestar Corporativo';
+  document.getElementById('info-horario-texto').innerText = 'Lunes a Viernes: 12:00 PM - 1:00 PM y 8:00 PM - 9:00 PM.';
+} else {
+  document.getElementById('info-horario-texto').innerText = 'Lunes a Viernes: 8:00 AM - 1:00 PM y 2:00 PM - 6:00 PM.';
 }
 
 let diasDisponibles = [];
@@ -29,10 +33,14 @@ document.addEventListener('DOMContentLoaded', () => {
     closeModal();
     window.location.reload();
   });
+  
+  document.getElementById('btn-entendido-info').addEventListener('click', () => {
+    document.getElementById('info-modal-overlay').style.display = 'none';
+  });
 });
 
 function fetchDisponibilidad() {
-  fetch(`${WEB_APP_URL}?action=getAvailability`)
+  fetch(`${WEB_APP_URL}?action=getAvailability&tenant=${tenant}`)
     .then(res => res.json())
     .then(data => {
       diasDisponibles = data;
@@ -40,7 +48,10 @@ function fetchDisponibilidad() {
       
       const splash = document.getElementById('splash');
       splash.style.opacity = '0';
-      setTimeout(() => splash.style.display = 'none', 300);
+      setTimeout(() => {
+        splash.style.display = 'none';
+        document.getElementById('info-modal-overlay').style.display = 'flex';
+      }, 300);
     })
     .catch(err => {
       console.error(err);
@@ -50,7 +61,10 @@ function fetchDisponibilidad() {
       renderDateCarousel(diasDisponibles);
       const splash = document.getElementById('splash');
       splash.style.opacity = '0';
-      setTimeout(() => splash.style.display = 'none', 300);
+      setTimeout(() => {
+        splash.style.display = 'none';
+        document.getElementById('info-modal-overlay').style.display = 'flex';
+      }, 300);
     });
 }
 
@@ -80,6 +94,41 @@ function renderDateCarousel(dias) {
     });
     
     carousel.appendChild(chip);
+  });
+
+  // Enable mouse drag scrolling for desktop
+  let isDown = false;
+  let startX;
+  let scrollLeft;
+
+  carousel.addEventListener('mousedown', (e) => {
+    isDown = true;
+    carousel.classList.add('active');
+    startX = e.pageX - carousel.offsetLeft;
+    scrollLeft = carousel.scrollLeft;
+  });
+  carousel.addEventListener('mouseleave', () => {
+    isDown = false;
+    carousel.classList.remove('active');
+  });
+  carousel.addEventListener('mouseup', () => {
+    isDown = false;
+    carousel.classList.remove('active');
+  });
+  carousel.addEventListener('mousemove', (e) => {
+    if (!isDown) return;
+    e.preventDefault();
+    const x = e.pageX - carousel.offsetLeft;
+    const walk = (x - startX) * 2; // Scroll speed multiplier
+    carousel.scrollLeft = scrollLeft - walk;
+  });
+
+  // Enable mouse wheel horizontal scroll
+  carousel.addEventListener('wheel', (e) => {
+    if (e.deltaY !== 0) {
+      e.preventDefault();
+      carousel.scrollLeft += e.deltaY;
+    }
   });
 }
 

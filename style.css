@@ -135,9 +135,26 @@ body {
   gap: 12px;
   overflow-x: auto;
   padding-bottom: 16px;
-  scrollbar-width: none; /* Firefox */
+  scrollbar-width: thin; /* Firefox: makes it visible but subtle */
+  scrollbar-color: var(--border-color) transparent;
+  cursor: grab; /* Shows hand cursor for dragging */
 }
-.date-carousel::-webkit-scrollbar { display: none; } /* Chrome/Safari */
+.date-carousel:active {
+  cursor: grabbing;
+}
+.date-carousel::-webkit-scrollbar { 
+  height: 6px; 
+} 
+.date-carousel::-webkit-scrollbar-track {
+  background: transparent;
+}
+.date-carousel::-webkit-scrollbar-thumb {
+  background-color: var(--border-color);
+  border-radius: var(--radius-full);
+}
+.date-carousel::-webkit-scrollbar-thumb:hover {
+  background-color: var(--text-muted);
+}
 .date-chip {
   flex: 0 0 auto;
   min-width: 80px;
@@ -151,6 +168,8 @@ body {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  user-select: none;
+  -webkit-user-select: none;
 }
 .date-chip:active { transform: scale(0.95); }
 .date-chip .day-name { font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); }
@@ -238,6 +257,41 @@ body {
   justify-content: center;
   line-height: 1;
 }
+
+/* Info Modal Specifics */
+.info-modal-content {
+  border-radius: var(--radius-lg);
+  max-width: 500px;
+  height: auto;
+}
+.info-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  background: var(--bg);
+  border: 1px solid var(--border-color);
+  padding: 16px;
+  border-radius: var(--radius-md);
+  margin-bottom: 16px;
+}
+.info-icon {
+  color: var(--primary);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: white;
+  border-radius: 50%;
+  box-shadow: var(--shadow-sm);
+}
+.info-text {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text-main);
+}
+.info-text b { color: var(--primary-dark); }
 
 .modal-body {
   padding: 20px;

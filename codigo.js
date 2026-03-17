@@ -18,7 +18,8 @@ function doGet(e) {
     return HtmlService.createHtmlOutput(eliminarReserva(e.parameter.id));
   }
   if (e.parameter.action === 'getAvailability') {
-    const data = obtenerDisponibilidad();
+    const tenant = e.parameter.tenant || 'neumann';
+    const data = obtenerDisponibilidad(tenant);
     return ContentService.createTextOutput(JSON.stringify(data)).setMimeType(ContentService.MimeType.JSON);
   }
   return HtmlService.createHtmlOutput("Servidor de Reservas Activo.");
@@ -34,13 +35,23 @@ function doPost(e) {
   }
 }
 
-function obtenerDisponibilidad() {
+function obtenerDisponibilidad(tenant) {
   const cal = CalendarApp.getDefaultCalendar();
   const ahora = new Date();
   const diasBusqueda = 14;
   const finBusqueda = new Date(ahora.getTime() + (diasBusqueda * 24 * 60 * 60 * 1000));
   const todosLosEventos = cal.getEvents(ahora, finBusqueda);
-  const horasLaborales = [{ inicio: 8, fin: 13 }, { inicio: 14, fin: 18 }];
+  
+  // Condicional de horarios por tenant
+  let horasLaborales;
+  if (tenant === 'empresa') {
+    // Empresa: 12:00 PM a 1:00 PM (12 a 13) y 8:00 PM a 9:00 PM (20 a 21)
+    horasLaborales = [{ inicio: 12, fin: 13 }, { inicio: 20, fin: 21 }];
+  } else {
+    // Neumann (por defecto): 8:00 AM a 1:00 PM y 2:00 PM a 6:00 PM
+    horasLaborales = [{ inicio: 8, fin: 13 }, { inicio: 14, fin: 18 }];
+  }
+  
   let disponibilidad = [];
 
   for (let i = 0; i < diasBusqueda; i++) {
