@@ -123,6 +123,34 @@ function registrarReserva(d) {
     
     const urlApp = ScriptApp.getService().getUrl();
     enviarEmailConfirmacion(d, inicio, urlApp + "?action=delete&id=" + idUnico);
+
+    // Enviar data al webhook externo
+    try {
+      const payloadWebhook = {
+        id: idUnico,
+        fechaCreacion: fechaCreacion,
+        fechaCita: fechaOcurrencia,
+        horaCita: horaOcurrencia,
+        nombres_apellidos: d.nombres_apellidos,
+        correo: d.correo,
+        telefono: d.telefono,
+        edad: d.edad,
+        instituto: d.instituto,
+        ciclo: d.ciclo,
+        carrera: d.carrera,
+        motivo: d.motivo,
+        convivencia: d.convivencia
+      };
+      const options = {
+        method: "post",
+        contentType: "application/json",
+        payload: JSON.stringify(payloadWebhook),
+        muteHttpExceptions: true
+      };
+      UrlFetchApp.fetch("https://n8n.balticec.com/webhook-test/cd091a4e-2df4-4a37-aa33-e9971be5f425", options);
+    } catch (whError) {
+      console.error("Error enviando al webhook: " + whError);
+    }
     
     return {status: "ok", msg: "Cita agendada correctamente."};
   } catch (e) { 
