@@ -1,0 +1,193 @@
+// --- CONFIGURACIÓN ---
+const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxvZRjALKcc9HzS_Ir-QeMqzbGNzfy3hL8-wqNxsiMT5c5jQ0_Kv1FyeNjFSZHFlRL6/exec';
+
+// Multi-tenant configuration
+const urlParams = new URLSearchParams(window.location.search);
+const tenant = urlParams.get('tenant') || 'neumann'; // "neumann" o "empresa"
+
+document.body.setAttribute('data-tenant', tenant);
+const currInstituto = tenant === 'empresa' ? 'Instituto de la Empresa' : 'Jhonn Vonn Neumann';
+document.getElementById('hidden-instituto').value = currInstituto;
+
+if (tenant === 'empresa') {
+  document.getElementById('splash-logo').src = 'https://lh3.googleusercontent.com/a-/ALV-UjXPKtsLTepQWQmFSGHqytswW4w4BJnWkNPwXUzWp719hw98gvg=s80-c-mo';
+  document.getElementById('header-logo').src = 'https://lh3.googleusercontent.com/a-/ALV-UjXPKtsLTepQWQmFSGHqytswW4w4BJnWkNPwXUzWp719hw98gvg=s80-c-mo';
+  document.getElementById('splash-title').innerText = 'Bienestar Corporativo';
+}
+
+let diasDisponibles = [];
+let currentSelectedDate = null;
+let currentSelectedTimeObj = null;
+
+// --- INICIALIZACIÓN ---
+document.addEventListener('DOMContentLoaded', () => {
+  // Simulando carga de datos de Google Apps Script o Fetching
+  fetchDisponibilidad();
+
+  document.getElementById('close-modal').addEventListener('click', closeModal);
+  document.getElementById('btn-done').addEventListener('click', () => {
+    closeModal();
+    window.location.reload();
+  });
+});
+
+function fetchDisponibilidad() {
+  fetch(`${WEB_APP_URL}?action=getAvailability`)
+    .then(res => res.json())
+    .then(data => {
+      diasDisponibles = data;
+      renderDateCarousel(diasDisponibles);
+      
+      const splash = document.getElementById('splash');
+      splash.style.opacity = '0';
+      setTimeout(() => splash.style.display = 'none', 300);
+    })
+    .catch(err => {
+      console.error(err);
+      showToast('Error al cargar disponibilidad.');
+      // Fallback local for testing/mocking
+      diasDisponibles = generateMockData();
+      renderDateCarousel(diasDisponibles);
+      const splash = document.getElementById('splash');
+      splash.style.opacity = '0';
+      setTimeout(() => splash.style.display = 'none', 300);
+    });
+}
+
+function renderDateCarousel(dias) {
+  const carousel = document.getElementById('date-carousel');
+  carousel.innerHTML = '';
+
+  dias.forEach((diaInfo, index) => {
+    // diaInfo.fechaStr comes as "sáb, 17 mar"
+    const parts = diaInfo.fechaStr.split(', ');
+    const dayName = parts[0]; // sáb
+    const numMonth = parts[1].split(' '); // 17 mar
+    
+    const chip = document.createElement('div');
+    chip.className = 'date-chip';
+    chip.dataset.index = index;
+    chip.innerHTML = `
+      <span class="day-name">${dayName}</span>
+      <span class="day-num">${numMonth[0]}</span>
+      <span class="month">${numMonth[1]}</span>
+    `;
+    
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('.date-chip').forEach(c => c.classList.remove('selected'));
+      chip.classList.add('selected');
+      renderTimeGrid(diaInfo);
+    });
+    
+    carousel.appendChild(chip);
+  });
+}
+
+function renderTimeGrid(diaInfo) {
+  const timeSection = document.getElementById('time-section');
+  const timeGrid = document.getElementById('time-grid');
+  const dateText = document.getElementById('selected-date-text');
+  
+  timeSection.style.display = 'block';
+  dateText.innerText = `Horarios para el ${diaInfo.fechaStr}`;
+  timeGrid.innerHTML = '';
+
+  diaInfo.slots.forEach(slot => {
+    const localTime = new Date(slot.iso).toLocaleTimeString('es-ES', { hour: 'numeric', minute: '2-digit', hour12: true }).toUpperCase();
+    const btn = document.createElement('button');
+    btn.className = 'time-btn';
+    btn.innerText = localTime;
+    
+    btn.addEventListener('click', () => {
+      openModal(slot, diaInfo.fechaStr, localTime);
+    });
+    
+    timeGrid.appendChild(btn);
+  });
+
+  // Scroll to time grid smoothly
+  timeSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function openModal(slot, dateStr, timeStr) {
+  currentSelectedTimeObj = slot;
+  document.getElementById('hidden-datetime').value = slot.iso;
+  document.getElementById('modal-datetime-info').innerText = `${dateStr} a las ${timeStr}`;
+  
+  const modalObj = document.getElementById('modal-overlay');
+  modalObj.style.display = 'flex';
+  document.getElementById('appointment-form').style.display = 'block';
+  document.getElementById('success-state').style.display = 'none';
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').style.display = 'none';
+  document.getElementById('appointment-form').reset();
+}
+
+function showToast(message) {
+  const toast = document.getElementById('toast');
+  toast.innerText = message;
+  toast.classList.add('show');
+  setTimeout(() => {
+    toast.classList.remove('show');
+  }, 3000);
+}
+
+// Lógica de Envío del Formulario
+document.getElementById('appointment-form').addEventListener('submit', function(e) {
+  e.preventDefault();
+  
+  const btn = document.getElementById('btn-submit');
+  btn.innerText = 'Procesando...';
+  btn.disabled = true;
+
+  const formData = new FormData(this);
+  const data = Object.fromEntries(formData.entries());
+
+  fetch(WEB_APP_URL, {
+    method: 'POST',
+    body: JSON.stringify(data),
+    headers: {
+      'Content-Type': 'text/plain;charset=utf-8',
+    }
+  })
+  .then(res => res.json())
+  .then(result => {
+    if(result.status === 'ok') {
+      showToast('Cita reservada con éxito');
+      document.getElementById('appointment-form').style.display = 'none';
+      document.getElementById('success-state').style.display = 'block';
+    } else {
+      showToast('Error: ' + result.msg);
+    }
+  })
+  .catch(err => {
+    showToast('Error de conexión');
+    console.error(err);
+  })
+  .finally(() => {
+    btn.innerText = 'Agendar Cita';
+    btn.disabled = false;
+  });
+});
+
+// Mocked availability function to use if backend fails during testing
+function generateMockData() {
+  const data = [];
+  const now = new Date();
+  for(let i=1; i<=14; i++) {
+    const d = new Date(now.getTime() + i*86400000);
+    if(d.getDay() === 0 || d.getDay() === 6) continue;
+    const str = d.toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short' });
+    data.push({
+      fechaStr: str,
+      slots: [
+        { iso: new Date(d.setHours(9,0,0,0)).toISOString() },
+        { iso: new Date(d.setHours(11,0,0,0)).toISOString() },
+        { iso: new Date(d.setHours(15,0,0,0)).toISOString() }
+      ]
+    });
+  }
+  return data;
+}
