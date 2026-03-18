@@ -557,6 +557,33 @@ textarea { resize: vertical; min-height: 80px; }
     flex-shrink: 0;
   }
 
+  .sidebar-illustration {
+    margin-top: 38px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    width: calc(100% + 48px);
+    margin-left: -24px;
+  }
+
+  .sidebar-illustration img {
+    width: 100%;
+    max-width: none;
+    display: block;
+    margin: 0 auto;
+    opacity: 0.62;
+    user-select: none;
+    -webkit-user-select: none;
+    pointer-events: none;
+  }
+
+  .sidebar-illustration p {
+    margin-top: 8px;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.9);
+  }
+
   .sidebar-footer {
     margin-top: auto;
     font-size: 12px;

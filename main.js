@@ -3,8 +3,10 @@ const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwqvNLGmKUBp4MUkrB7
 
 // Multi-tenant configuration
 const urlParams = new URLSearchParams(window.location.search);
+
 const tenant = urlParams.get('tenant') || 'neumann'; // "neumann" o "empresa"
-// const tenant = 'empresa'; // "neumann" o "empresa"
+// const tenant = 'neumann';
+// const tenant = 'empresa';
 
 document.body.setAttribute('data-tenant', tenant);
 const currInstituto = tenant === 'empresa' ? 'Instituto de la Empresa' : 'Jhonn Vonn Neumann';
