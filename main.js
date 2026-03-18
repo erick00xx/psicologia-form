@@ -51,6 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function fetchDisponibilidad() {
+  document.body.classList.remove('has-selected-date');
   fetch(`${WEB_APP_URL}?action=getAvailability&tenant=${tenant}`)
     .then(res => res.json())
     .then(data => {
@@ -148,6 +149,7 @@ function renderTimeGrid(diaInfo) {
   const timeGrid = document.getElementById('time-grid');
   const dateText = document.getElementById('selected-date-text');
   
+  document.body.classList.add('has-selected-date');
   timeSection.style.display = 'block';
   dateText.innerText = `Horarios para el ${diaInfo.fechaStr}`;
   timeGrid.innerHTML = '';

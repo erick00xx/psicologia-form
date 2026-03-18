@@ -151,6 +151,95 @@ body[data-tenant="empresa"] .top-header img {
   margin-bottom: 32px;
 }
 
+/* Mobile support block (fills visual space before selecting a date) */
+.mobile-support-card {
+  margin-top: 8px;
+  padding: 18px 16px;
+  border-radius: 14px;
+  background: linear-gradient(145deg, var(--primary), var(--primary-dark));
+  color: #fff;
+  box-shadow: var(--shadow-md);
+}
+
+.mobile-support-card h3 {
+  font-size: 18px;
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+
+.mobile-support-sub {
+  font-size: 13px;
+  opacity: 0.92;
+  line-height: 1.45;
+  margin-bottom: 12px;
+}
+
+.mobile-support-list {
+  list-style: none;
+  display: grid;
+  gap: 8px;
+}
+
+.mobile-support-list li {
+  font-size: 13px;
+  line-height: 1.35;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.mobile-check {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.18);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 800;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.mobile-support-illustration {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.18);
+}
+.mobile-support-illustration p {
+    margin-top: 8px;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.9);
+  }
+
+.mobile-support-illustration img {
+  width: 100%;
+  max-width: 250px;
+  display: block;
+  margin: 0 auto;
+  opacity: 0.7;
+  user-select: none;
+  -webkit-user-select: none;
+  pointer-events: none;
+}
+
+.mobile-support-footer {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0);
+  font-size: 11px;
+  opacity: 0.85;
+  letter-spacing: 0.2px;
+}
+
+/* Hide helper once user selected a date */
+body.has-selected-date .mobile-support-card {
+  display: none;
+}
+
 /* Date Carousel */
 .date-carousel {
   display: flex;
@@ -613,5 +702,9 @@ textarea { resize: vertical; min-height: 80px; }
   
   .main-content {
     padding: 0 32px 32px;
+  }
+
+  .mobile-support-card {
+    display: none;
   }
 }
