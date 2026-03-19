@@ -122,7 +122,6 @@ function registrarReserva(d) {
     cal.createEvent("Psicología: " + d.nombres_apellidos, inicio, fin, { description: "ID: " + idUnico + "\nMotivo: " + d.motivo + "\nContacto: " + d.telefono });
     
     const urlApp = ScriptApp.getService().getUrl();
-    enviarEmailConfirmacion(d, inicio, urlApp + "?action=delete&id=" + idUnico);
 
     // Enviar data al webhook externo
     try {
@@ -147,9 +146,15 @@ function registrarReserva(d) {
         payload: JSON.stringify(payloadWebhook),
         muteHttpExceptions: true
       };
-      UrlFetchApp.fetch("https://n8n.balticec.com/webhook-test/cd091a4e-2df4-4a37-aa33-e9971be5f425", options);
+      const response = UrlFetchApp.fetch("https://n8n.balticec.com/webhook-test/cd091a4e-2df4-4a37-aa33-e9971be5f425", options);
+      const statusCode = response.getResponseCode();
+      if (statusCode < 200 || statusCode >= 300) {
+        throw new Error("Webhook n8n respondió con estado " + statusCode);
+      }
     } catch (whError) {
       console.error("Error enviando al webhook: " + whError);
+      // Fallback: enviar correo solo si falla n8n
+      enviarEmailConfirmacion(d, inicio, urlApp + "?action=delete&id=" + idUnico);
     }
     
     return {status: "ok", msg: "Cita agendada correctamente."};
