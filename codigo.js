@@ -48,8 +48,8 @@ function obtenerDisponibilidad(tenant) {
     // Empresa: 12:00 PM a 1:00 PM (12 a 13) y 8:00 PM a 9:00 PM (20 a 21)
     horasLaborales = [{ inicio: 12, fin: 13 }, { inicio: 20, fin: 21 }];
   } else {
-    // Neumann (por defecto): 8:00 AM a 1:00 PM y 2:00 PM a 6:00 PM
-    horasLaborales = [{ inicio: 8, fin: 13 }, { inicio: 14, fin: 18 }];
+    // Neumann (por defecto): 8:00 AM a 12:00 PM y 5:00 PM a 8:00 PM
+    horasLaborales = [{ inicio: 8, fin: 12 }, { inicio: 17, fin: 20 }];
   }
   
   let disponibilidad = [];
@@ -82,6 +82,7 @@ function obtenerDisponibilidad(tenant) {
 
 function registrarReserva(d) {
   try {
+    const modalidad = d.modalidad || (d.instituto === 'Instituto de la Empresa' ? 'Virtual' : 'Presencial');
     const idUnico = Utilities.getUuid();
     // d.fecha_hora_iso del frontend
     const inicio = new Date(d.fecha_hora_iso);
@@ -98,7 +99,7 @@ function registrarReserva(d) {
     const hoja = ss.getSheetByName("Reservas") || ss.getSheets()[0];
 
     // Orden de columnas en el Google Sheet (Base a la imagen de requerimiento):
-    // ID (A) | Creado (B) | Fecha (C) | Hora (D) | Reservado por (E) | Correo (F) | Teléfono/Celular (G) | Edad (H) | Instituto (I) | Ciclo (J) | Carrera Profesional (K) | Motivo de consulta (L) | Con quién vives (M)
+    // ID (A) | Creado (B) | Fecha (C) | Hora (D) | Reservado por (E) | Correo (F) | Teléfono/Celular (G) | Edad (H) | Instituto (I) | Ciclo (J) | Carrera Profesional (K) | Motivo de consulta (L) | Con quién vives (M) | ... | Modalidad (V)
     
     // Mapeo de datos recibidos del formulario Mobile-first
     const filaNueva = [
@@ -114,7 +115,16 @@ function registrarReserva(d) {
       d.ciclo,                      // J - Ciclo
       d.carrera,                    // K - Carrera Profesional
       d.motivo,                     // L - Motivo de consulta
-      d.convivencia                 // M - Con quién vives
+      d.convivencia,                // M - Con quién vives
+      '',                           // N
+      '',                           // O
+      '',                           // P
+      '',                           // Q
+      '',                           // R
+      '',                           // S
+      '',                           // T
+      '',                           // U
+      modalidad                     // V - Modalidad
     ];
 
     hoja.appendRow(filaNueva);
@@ -135,6 +145,7 @@ function registrarReserva(d) {
         telefono: d.telefono,
         edad: d.edad,
         instituto: d.instituto,
+        modalidad: modalidad,
         ciclo: d.ciclo,
         carrera: d.carrera,
         motivo: d.motivo,

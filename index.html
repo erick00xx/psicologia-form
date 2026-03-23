@@ -148,6 +148,7 @@
         <form id="appointment-form">
           <input type="hidden" name="fecha_hora_iso" id="hidden-datetime">
           <input type="hidden" name="instituto" id="hidden-instituto">
+          <input type="hidden" name="modalidad" id="hidden-modalidad" value="Presencial">
 
           <div class="input-group">
             <input type="text" name="nombres_apellidos" id="nombres_apellidos" required placeholder=" ">
@@ -183,6 +184,14 @@
               </select>
               <label for="carrera">Carrera</label>
             </div>
+          </div>
+
+          <div class="input-group select-group">
+            <select name="modalidad_visible" id="modalidad-visible" required>
+              <option value="Presencial" selected>Presencial</option>
+              <option value="Virtual">Virtual</option>
+            </select>
+            <label for="modalidad-visible">Modalidad</label>
           </div>
 
           <div class="input-group">

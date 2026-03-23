@@ -1,5 +1,5 @@
 // --- CONFIGURACIÓN ---
-const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwenFTDCC77S96Q13anJCMP2sKXpTnzJu6K45QIbVtYWmMR9_lvCKO3PmwJDJ2hONQr/exec';
+const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwcRgFCo_cwGWNRIkwJhlP-KAPnl2FBdyE-tPBEYbkD-6mx_whbHJN03qy7Q8Qb42Yb/exec';
 
 // Multi-tenant configuration
 const urlParams = new URLSearchParams(window.location.search);
@@ -19,7 +19,7 @@ if (tenant === 'empresa') {
   document.getElementById('splash-title').innerText = 'Bienestar Corporativo';
   document.getElementById('info-horario-texto').innerText = 'Lunes a Viernes: 12:00 PM - 1:00 PM y 8:00 PM - 9:00 PM.';
 } else {
-  document.getElementById('info-horario-texto').innerText = 'Lunes a Viernes: 8:00 AM - 1:00 PM y 2:00 PM - 6:00 PM.';
+  document.getElementById('info-horario-texto').innerText = 'Lunes a Viernes: 8:00 AM - 12:00 PM y 5:00 PM - 8:00 PM.';
 }
 
 let diasDisponibles = [];
@@ -48,7 +48,29 @@ document.addEventListener('DOMContentLoaded', () => {
       this.value = this.value.toUpperCase();
     });
   }
+
+  configurarModalidadPorTenant();
 });
+
+function configurarModalidadPorTenant() {
+  const modalidadVisible = document.getElementById('modalidad-visible');
+  const hiddenModalidad = document.getElementById('hidden-modalidad');
+  if (!modalidadVisible || !hiddenModalidad) return;
+
+  if (tenant === 'empresa') {
+    modalidadVisible.value = 'Virtual';
+    modalidadVisible.disabled = true;
+    hiddenModalidad.value = 'Virtual';
+  } else {
+    modalidadVisible.disabled = false;
+    modalidadVisible.value = 'Presencial';
+    hiddenModalidad.value = 'Presencial';
+  }
+
+  modalidadVisible.onchange = () => {
+    hiddenModalidad.value = modalidadVisible.value;
+  };
+}
 
 function fetchDisponibilidad() {
   document.body.classList.remove('has-selected-date');
@@ -185,6 +207,7 @@ function openModal(slot, dateStr, timeStr) {
 function closeModal() {
   document.getElementById('modal-overlay').style.display = 'none';
   document.getElementById('appointment-form').reset();
+  configurarModalidadPorTenant();
 }
 
 function showToast(message) {
@@ -238,17 +261,26 @@ document.getElementById('appointment-form').addEventListener('submit', function(
 function generateMockData() {
   const data = [];
   const now = new Date();
+
+  const bloques = tenant === 'empresa'
+    ? [{ inicio: 12, fin: 13 }, { inicio: 20, fin: 21 }]
+    : [{ inicio: 8, fin: 12 }, { inicio: 17, fin: 20 }];
+
   for(let i=1; i<=14; i++) {
     const d = new Date(now.getTime() + i*86400000);
     if(d.getDay() === 0 || d.getDay() === 6) continue;
     const str = d.toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short' });
+
+    const slots = [];
+    bloques.forEach(bloque => {
+      for (let h = bloque.inicio; h < bloque.fin; h++) {
+        slots.push({ iso: new Date(new Date(d).setHours(h, 0, 0, 0)).toISOString() });
+      }
+    });
+
     data.push({
       fechaStr: str,
-      slots: [
-        { iso: new Date(d.setHours(9,0,0,0)).toISOString() },
-        { iso: new Date(d.setHours(11,0,0,0)).toISOString() },
-        { iso: new Date(d.setHours(15,0,0,0)).toISOString() }
-      ]
+      slots
     });
   }
   return data;
