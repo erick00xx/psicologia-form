@@ -35,6 +35,46 @@ function doPost(e) {
   }
 }
 
+function registrarLogEnvio(params) {
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const hojaLogs = ss.getSheetByName("Logs");
+    if (!hojaLogs) return;
+
+    const tz = Session.getScriptTimeZone();
+    const ahora = new Date();
+    const timestamp = Utilities.formatDate(ahora, tz, "yyyy-MM-dd HH:mm:ss");
+    const fechaEnvio = Utilities.formatDate(ahora, tz, "yyyy-MM-dd HH:mm:ss");
+
+    let details = "";
+    if (params.details !== undefined && params.details !== null && params.details !== "") {
+      try {
+        details = typeof params.details === "string" ? params.details : JSON.stringify(params.details);
+      } catch (jsonErr) {
+        details = String(params.details);
+      }
+    }
+
+    hojaLogs.appendRow([
+      timestamp,
+      params.action || "sendConfirmation",
+      params.status || "error",
+      params.channel || "manual",
+      params.estudiante || "",
+      params.correo || "",
+      params.instituto || "",
+      params.fechaCita || "",
+      params.horaCita || "",
+      fechaEnvio,
+      params.message || "",
+      params.error || "",
+      details
+    ]);
+  } catch (logError) {
+    console.error("Error registrando log en hoja Logs: " + logError);
+  }
+}
+
 function obtenerDisponibilidad(tenant) {
   const cal = CalendarApp.getDefaultCalendar();
   const ahora = new Date();
@@ -159,13 +199,83 @@ function registrarReserva(d) {
       };
       const response = UrlFetchApp.fetch("https://n8n.balticec.com/webhook-test/cd091a4e-2df4-4a37-aa33-e9971be5f425", options);
       const statusCode = response.getResponseCode();
+      const responseBody = response.getContentText();
+
       if (statusCode < 200 || statusCode >= 300) {
+        registrarLogEnvio({
+          action: "sendConfirmation",
+          status: "error",
+          channel: "n8n",
+          estudiante: d.nombres_apellidos,
+          correo: d.correo,
+          instituto: d.instituto,
+          fechaCita: fechaOcurrencia,
+          horaCita: horaOcurrencia,
+          message: "n8n respondió con error al enviar confirmación.",
+          error: "Webhook n8n respondió con estado " + statusCode,
+          details: { status: statusCode, response: responseBody }
+        });
         throw new Error("Webhook n8n respondió con estado " + statusCode);
       }
+
+      registrarLogEnvio({
+        action: "sendConfirmation",
+        status: "success",
+        channel: "n8n",
+        estudiante: d.nombres_apellidos,
+        correo: d.correo,
+        instituto: d.instituto,
+        fechaCita: fechaOcurrencia,
+        horaCita: horaOcurrencia,
+        message: "Confirmación enviada a n8n correctamente.",
+        details: { status: statusCode, response: responseBody }
+      });
     } catch (whError) {
       console.error("Error enviando al webhook: " + whError);
+      registrarLogEnvio({
+        action: "sendConfirmation",
+        status: "error",
+        channel: "n8n",
+        estudiante: d.nombres_apellidos,
+        correo: d.correo,
+        instituto: d.instituto,
+        fechaCita: fechaOcurrencia,
+        horaCita: horaOcurrencia,
+        message: "Falló el envío por n8n. Se intentará envío manual.",
+        error: String(whError)
+      });
+
       // Fallback: enviar correo solo si falla n8n
-      enviarEmailConfirmacion(d, inicio, urlApp + "?action=delete&id=" + idUnico);
+      try {
+        enviarEmailConfirmacion(d, inicio, urlApp + "?action=delete&id=" + idUnico);
+        registrarLogEnvio({
+          action: "sendConfirmation",
+          status: "success",
+          channel: "manual",
+          estudiante: d.nombres_apellidos,
+          correo: d.correo,
+          instituto: d.instituto,
+          fechaCita: fechaOcurrencia,
+          horaCita: horaOcurrencia,
+          message: "Confirmación enviada por correo manual correctamente.",
+          details: { fallback: true }
+        });
+      } catch (mailError) {
+        console.error("Error enviando correo manual de confirmación: " + mailError);
+        registrarLogEnvio({
+          action: "sendConfirmation",
+          status: "error",
+          channel: "manual",
+          estudiante: d.nombres_apellidos,
+          correo: d.correo,
+          instituto: d.instituto,
+          fechaCita: fechaOcurrencia,
+          horaCita: horaOcurrencia,
+          message: "Falló el envío manual de confirmación.",
+          error: String(mailError),
+          details: { fallback: true }
+        });
+      }
     }
     
     return {status: "ok", msg: "Cita agendada correctamente."};

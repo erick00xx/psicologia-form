@@ -1,5 +1,5 @@
 // --- CONFIGURACIÓN ---
-const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwcRgFCo_cwGWNRIkwJhlP-KAPnl2FBdyE-tPBEYbkD-6mx_whbHJN03qy7Q8Qb42Yb/exec';
+const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzeKgyTZihaooRUsikU4YpsQ7wbezTBKPPc0NPQeorIDTJpypTJoEreu47N0O16bMWL/exec';
 
 // Multi-tenant configuration
 const urlParams = new URLSearchParams(window.location.search);
